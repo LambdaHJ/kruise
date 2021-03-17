@@ -17,6 +17,7 @@ limitations under the License.
 package runtime
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -71,6 +72,12 @@ func NewFactory(varRunPath string, accountManager daemonutil.ImagePullAccountMan
 		}
 		if err != nil {
 			klog.Warningf("Failed to new image runtime for %v(%s): %v", cfg.runtimeType, cfg.runtimeURI, err)
+			continue
+		}
+
+		// loop will continue, if runtime can't list images. for ignore empty runtime uri.
+		if _, err = imageRuntime.ListImages(context.TODO()); err != nil {
+			klog.Warningf("Failed connecte to image runtime for %v(%s): %v", cfg.runtimeType, cfg.runtimeURI, err)
 			continue
 		}
 		break
